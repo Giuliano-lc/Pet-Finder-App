@@ -18,9 +18,10 @@ def login():
         data = request.get_json('nome')
         conn = sqlite3.connect("data.db")
         usuarios = conn.execute("SELECT * FROM usuario")
+        print(data)
         for i in usuarios:
-            if data['email'] == i[1]:
-                if data['senha'] == i[2]:
+            if data['email'] == i[2]:
+                if data['senha'] == i[3]:
                     access_token = create_access_token(identity=data["email"])
                     return jsonify(access_token=access_token)
         return jsonify({'status': 'Usuario ou senha invalidos'})
