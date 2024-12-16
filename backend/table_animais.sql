@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS Animais (
     idade INTEGER NOT NULL,
     imagem BLOB,
     dono_id INTEGER NOT NULL,
+    dono TEXT NOT NULL,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status TEXT CHECK(status IN ('ativo', 'inativo')) DEFAULT 'ativo',
     latitude REAL,
