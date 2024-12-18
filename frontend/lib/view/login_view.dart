@@ -71,7 +71,6 @@ class _LoginViewState extends State<LoginView> {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(16.0),
             width: MediaQuery.of(context).size.width * .8,
-            height: 400,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.0),
