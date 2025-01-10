@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../bloc/home_view_bloc.dart';
 import '../design_configs.dart';
+import '../models/add_pet_model.dart';
 import '../models/pet_model.dart';
 import '../widget/login_app_bar.dart';
 import '../widget/standard_circular_progress_indicator.dart';
@@ -16,6 +18,112 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final bloc = HomeViewBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    bloc.mapController.listenerMapSingleTapping.addListener(singleTappingHandler);
+  }
+
+  void singleTappingHandler() {
+    GeoPoint? tappedPoint = bloc.mapController.listenerMapSingleTapping.value;
+    if (tappedPoint != null) {
+      showPetFormDialog(context, tappedPoint);
+    }
+  }
+
+  void showPetFormDialog(BuildContext context, GeoPoint localization) {
+    final formKey = GlobalKey<FormState>();
+    final ImagePicker picker = ImagePicker();
+    double height = 8.0;
+    SpottedAnimalModel pet = SpottedAnimalModel.empty();
+    pet.localization = localization;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Adicionar Animal'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Espécie'),
+                    items: ['Cachorro', 'Gato', 'Outro']
+                        .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(e),
+                    ))
+                        .toList(),
+                    onChanged: (value) => pet.species = value,
+                    validator: (value) => value == null ? 'Selecione uma espécie' : null,
+                  ),
+                  SizedBox(height: height,),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Cor'),
+                    onChanged: (value) => pet.color = value,
+                    validator: (value) => value == null || value.isEmpty ? 'Informe a cor' : null,
+                  ),
+                  SizedBox(height: height,),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Porte'),
+                    items: ['Pequeno', 'Médio', 'Grande']
+                        .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(e),
+                    ))
+                        .toList(),
+                    onChanged: (value) => pet.size = value,
+                    validator: (value) => value == null ? 'Selecione o porte' : null,
+                  ),
+                  SizedBox(height: height,),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Descrição adicional'),
+                    onChanged: (value) => pet.additionalDescription = value,
+                  ),
+                  SizedBox(height: height,),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+                        if (photo != null) pet.picture = photo.path;
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text('Foto carregada com sucesso!'),
+                          ));
+                        }
+                      },
+                      icon: const Icon(Icons.upload),
+                      label: const Text('Carregar Foto (opcional)'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  bloc.addSpottedAnimal(pet);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +182,7 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                     trailing: Icon(
                                       Icons.pets,
-                                      color: DesignConfigs.orangeColor,
+                                      color: DesignConfigs.brownColor,
                                     ),
                                     onTap: () => bloc.onPetTap(pet),
                                   ),
@@ -89,7 +197,6 @@ class _HomeViewState extends State<HomeView> {
                   ],
                 )
             )
-
           ],
         ),
       )

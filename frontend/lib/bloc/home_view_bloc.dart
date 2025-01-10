@@ -1,13 +1,16 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:petfinder/design_configs.dart';
+import 'package:petfinder/models/add_pet_model.dart';
 
 import '../models/pet_model.dart';
 
 class HomeViewBloc {
   final ValueNotifier<List<PetModel>> petsNotifier = ValueNotifier([]);
+  List<SpottedAnimalModel> spottedAnimalsList = [];
 
   final mapController = MapController(
       initMapWithUserPosition: const UserTrackingOption(
@@ -72,29 +75,92 @@ class HomeViewBloc {
 
   void onGeoPointClicked(BuildContext context, GeoPoint? point) {
     if (point == null) return;
+
     PetModel? selectedPet;
     for (PetModel pet in petsNotifier.value) {
       if (point == GeoPoint(latitude: pet.latitude, longitude: pet.longitude)) {
         selectedPet = pet;
       }
     }
+    if (selectedPet != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Pet Selecionado"),
+            content: Text("Você clicou no ${selectedPet!.name}, um ${selectedPet.breed}."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Fechar"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-    if (selectedPet == null) return;
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Pet Selecionado"),
-          content: Text("Você clicou no ${selectedPet!.name}, um ${selectedPet.breed}."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar"),
+    SpottedAnimalModel? spottedAnimal;
+
+    for (SpottedAnimalModel animal in spottedAnimalsList) {
+      if (point == animal.localization) {
+        spottedAnimal = animal;
+      }
+    }
+
+    if (spottedAnimal != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Animal Avistado"),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (spottedAnimal!.picture != null)
+                    Image.file(
+                      alignment: Alignment.center,
+                      File(spottedAnimal.picture!),
+                      height: 200,
+                      width: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  const SizedBox(height: 10),
+                  Text("Espécie: ${spottedAnimal.species ?? 'Não informada'}"),
+                  const SizedBox(height: 10),
+                  Text("Cor: ${spottedAnimal.color ?? 'Não informada'}"),
+                  const SizedBox(height: 10),
+                  Text("Porte: ${spottedAnimal.size ?? 'Não informado'}"),
+                  const SizedBox(height: 10),
+                  Text("Descrição Adicional: ${spottedAnimal.additionalDescription ?? 'Não informada'}"),
+                ],
+              ),
             ),
-          ],
-        );
-      },
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Fechar"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+
+  }
+
+  void addSpottedAnimal(SpottedAnimalModel pet) async {
+    spottedAnimalsList.add(pet);
+    await mapController.addMarker(
+        markerIcon: MarkerIcon(
+          icon: Icon(Icons.pets, color: DesignConfigs.orangeColor),
+        ),
+        GeoPoint(latitude: pet.localization!.latitude, longitude: pet.localization!.longitude)
     );
   }
 
