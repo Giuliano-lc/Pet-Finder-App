@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:petfinder/design_configs.dart';
-import 'package:petfinder/models/add_pet_model.dart';
+import 'package:petfinder/models/spotted_animal_model.dart';
 
 import '../models/pet_model.dart';
 

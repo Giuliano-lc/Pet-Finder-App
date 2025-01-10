@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../bloc/home_view_bloc.dart';
 import '../design_configs.dart';
-import '../models/add_pet_model.dart';
+import '../models/spotted_animal_model.dart';
 import '../models/pet_model.dart';
 import '../widget/login_app_bar.dart';
 import '../widget/standard_circular_progress_indicator.dart';
