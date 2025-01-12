@@ -29,7 +29,7 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  void _login() {
+  void _login() async {
     if (bloc.userController.text == '' || bloc.passwordController.text == '') {
       showWarningDialog(
           context: context,
@@ -40,12 +40,12 @@ class _LoginViewState extends State<LoginView> {
             Navigator.pop(context);
           });
       return;
-    } else if (!bloc.validateLogin()) {
+    } else if (!(await bloc.validateLogin())) {
       showWarningDialog(
           context: context,
           title: 'Login Inválido',
           content:
-          'As credenciais informadas não são válidas, por favor, tente novamente!',
+              'As credenciais informadas não são válidas, por favor, tente novamente!',
           actionText: 'Entendi',
           function: () {
             bloc.clearControllers();
@@ -134,17 +134,14 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   const SizedBox(height: 10),
                   TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: DesignConfigs.orangeColor,
-                    ),
-                    onPressed: (){},
-                    child: const Text(
-                      'Esqueci minha senha!',
-                      style: TextStyle(
-                        fontSize: 18
+                      style: TextButton.styleFrom(
+                        foregroundColor: DesignConfigs.orangeColor,
                       ),
-                    )
-                  ),
+                      onPressed: () {},
+                      child: const Text(
+                        'Esqueci minha senha!',
+                        style: TextStyle(fontSize: 18),
+                      )),
                   const SizedBox(height: 10),
                   TextButton(
                       style: TextButton.styleFrom(
@@ -153,11 +150,8 @@ class _LoginViewState extends State<LoginView> {
                       onPressed: () => showRegisterModal(context, bloc),
                       child: const Text(
                         'Cadastrar',
-                        style: TextStyle(
-                            fontSize: 18
-                        ),
-                      )
-                  )
+                        style: TextStyle(fontSize: 18),
+                      ))
                 ],
               ),
             ),
