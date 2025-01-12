@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../repository/shared_preferences_repository.dart';
-import '../use_case/login_use_case.dart';
+//import '../use_case/login_use_case.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginBloc {
   final TextEditingController userController = TextEditingController();
@@ -13,13 +16,48 @@ class LoginBloc {
     passwordController.dispose();
   }
 
-  bool validateLogin() {
-    bool authenticate = LoginUseCase.login(userController.text, passwordController.text);
-    if (authenticate) {
-      // TODO: Retirar esse 'Token' Salvo e validar ele com o Backend
-      SharedPreferencesRepository.setUserToken('ExemploDeToken');
+  Future<bool> loginUser(String email, String password) async {
+    final url = Uri.parse('http://localhost:5000/login');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'email': email,
+      'senha': password,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        // Login bem-sucedido
+        final responseData = jsonDecode(response.body);
+        final token = responseData['access_token'];
+        await SharedPreferencesRepository.setUserToken(token);
+        return true;
+      } else {
+        // Trate erros retornados pelo servidor
+        print('Erro: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      // Trate erros de conexão ou outros problemas
+      print('Erro ao se conectar ao servidor: $e');
+      return false;
     }
-    return authenticate;
+  }
+
+  Future<bool> validateLogin() async {
+    String email = userController.text;
+    String password = passwordController.text;
+
+    bool isAuthenticated = await loginUser(email, password);
+
+    if (isAuthenticated) {
+      print('Login realizado com sucesso!');
+    } else {
+      print('Erro no login, verifique suas credenciais.');
+    }
+
+    return isAuthenticated;
   }
 
   String? validateRegisterPassword(String? value) {
@@ -50,18 +88,35 @@ class LoginBloc {
     return null;
   }
 
-  // TODO: Falta um endpoint para registrar de fato o usuário
-  Future<bool> registerUser(
-      String name,
-      String email,
-      String password
-      ) async {
-    return true;
-  }
+  Future<bool> registerUser(String name, String email, String password) async {
+    final url = Uri.parse('http://localhost:5000/cadastro');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'nome': name,
+      'email': email,
+      'senha': password,
+    });
 
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        // Registro bem-sucedido
+        return true;
+      } else {
+        // Trate erros retornados pelo servidor
+        print('Erro: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      // Trate erros de conexão ou outros problemas
+      print('Erro ao se conectar ao servidor: $e');
+      return false;
+    }
+  }
 
   void clearControllers() {
     userController.text = '';
-    passwordController.text='';
+    passwordController.text = '';
   }
 }
