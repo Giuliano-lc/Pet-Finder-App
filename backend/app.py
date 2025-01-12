@@ -19,15 +19,20 @@ def convert_blob_to_base64(blob):
 @app.route("/login", methods = ['POST', 'GET'])
 def login():
     if request.method == "POST": 
-        data = request.get_json('nome')
+        data = request.get_json('email')
         conn = sqlite3.connect("data.db")
         usuarios = conn.execute("SELECT * FROM usuario")
-        print(data)
         for i in usuarios:
             if data['email'] == i[2]:
                 if data['senha'] == i[3]:
                     access_token = create_access_token(identity=data["email"])
+
+                    print(f"{data['email']}, logou com sucesso")
+
                     return jsonify(access_token=access_token)
+                
+        print("Tentativa de login invalida")
+
         return jsonify({'status': 'Usuario ou senha invalidos'})
 
 @app.route("/cadastro", methods = ["GET", "POST"])
@@ -38,10 +43,13 @@ def cadastro():
         emails = conn.execute(f"SELECT email FROM usuario")
         for i in emails:
             if i[0] == data['email']:
-                return jsonify({'status': 'Email ja existe'})
+                print("Email ja cadastrado")
+                return jsonify({'status': 'Email ja existe'}), 201
 
         conn.execute(f"INSERT INTO usuario (nome, email, senha) VALUES ('{data['nome']}', '{data['email']}', '{data['senha']}')")
         conn.commit()
+
+        print(f"{data['nome']}, foi cadastrado com sucesso")
 
         return jsonify({'status': 'Cadastrato com sucesso'})
 
