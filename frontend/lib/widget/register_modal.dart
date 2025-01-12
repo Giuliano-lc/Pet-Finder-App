@@ -8,7 +8,8 @@ void showRegisterModal(BuildContext context, LoginBloc bloc) {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   showDialog(
     context: context,
@@ -21,7 +22,8 @@ void showRegisterModal(BuildContext context, LoginBloc bloc) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 30),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 24, horizontal: 30),
         title: Container(
           decoration: BoxDecoration(
             color: DesignConfigs.brownColor,
@@ -64,22 +66,23 @@ void showRegisterModal(BuildContext context, LoginBloc bloc) {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(labelText: "Email"),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: bloc.validateRegisterEmail
-                ),
+                    controller: emailController,
+                    decoration: const InputDecoration(labelText: "Email"),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: bloc
+                        .validateRegisterEmail // não faz sentido ser antes do envio ao servidor
+                    ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: passwordController,
-                  decoration: const InputDecoration(labelText: "Senha"),
-                  obscureText: true,
-                  validator: bloc.validateRegisterPassword
-                ),
+                    controller: passwordController,
+                    decoration: const InputDecoration(labelText: "Senha"),
+                    obscureText: true,
+                    validator: bloc.validateRegisterPassword),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: confirmPasswordController,
-                  decoration: const InputDecoration(labelText: "Confirmar senha"),
+                  decoration:
+                      const InputDecoration(labelText: "Confirmar senha"),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -102,15 +105,14 @@ void showRegisterModal(BuildContext context, LoginBloc bloc) {
                 bool registerSuccess = await bloc.registerUser(
                     nameController.text,
                     emailController.text,
-                    passwordController.text
-                );
-                String msg = registerSuccess ? 'Cadastro realizado com sucesso!' : 'Não foi possivel realizar o cadastro!';
+                    passwordController.text);
+                String msg = registerSuccess
+                    ? 'Cadastro realizado com sucesso!'
+                    : 'Email já cadastrado!'; // gambiarra (Não foi possivel realizar o cadastro!)
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(msg),
-                      )
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(msg),
+                  ));
                   Navigator.pop(context);
                 }
               }
