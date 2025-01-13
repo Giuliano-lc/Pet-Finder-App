@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template
-import sqlite3
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import base64
+import sqlite3
+
+from flask import Flask, jsonify, render_template, request
+from flask_cors import CORS
+from flask_jwt_extended import (JWTManager, create_access_token,
+                                get_jwt_identity, jwt_required)
 
 app = Flask(__name__)
 
@@ -129,3 +131,6 @@ def listar_detalhes(animal_id):
 
     conn.close()
     return jsonify({"error": "Animal not found"}), 404
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

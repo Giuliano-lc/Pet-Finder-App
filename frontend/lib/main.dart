@@ -6,7 +6,7 @@ import 'package:petfinder/view/my_app.dart';
 void main() async {
   usePathUrlStrategy();
   FlavorConfig(variables: {
-    'apiUrl': 'http://localhost:5000/',
+    'apiUrl': 'http://192.168.2.103:5000/',
   });
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());

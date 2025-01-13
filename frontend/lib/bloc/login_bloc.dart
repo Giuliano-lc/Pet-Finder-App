@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-import '../repository/shared_preferences_repository.dart';
+import 'package:flutter/material.dart';
 //import '../use_case/login_use_case.dart';
 
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+import '../repository/shared_preferences_repository.dart';
 
 class LoginBloc {
   final TextEditingController userController = TextEditingController();
@@ -17,7 +18,7 @@ class LoginBloc {
   }
 
   Future<bool> loginUser(String email, String password) async {
-    final url = Uri.parse('http://localhost:5000/login');
+    final url = Uri.parse('http://192.168.2.103:5000/login');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'email': email,
@@ -89,7 +90,7 @@ class LoginBloc {
   }
 
   Future<bool> registerUser(String name, String email, String password) async {
-    final url = Uri.parse('http://localhost:5000/cadastro');
+    final url = Uri.parse('http://192.168.2.103:5000/cadastro');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'nome': name,
